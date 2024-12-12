@@ -1,0 +1,134 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Login & Register</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body>
+    <div class="container" id="container">
+        <div class="form-container sign-up-container">
+            <form id="signup-form">
+                <h1>Create Account</h1>
+                <input type="text" id="name" name="name" placeholder="Name" required />
+                <input type="email" id="email" name="email" placeholder="Email" required />
+                <input type="password" id="password" name="password" placeholder="Password" required />
+                <button type="submit">Sign Up</button>
+            </form>
+            <div id="signup-message"></div>
+        </div>
+        <div class="form-container sign-in-container">
+            <form action="/signin" method="POST">
+                <h1>Sign in</h1>
+                <input type="email" placeholder="Email" />
+                <input type="password" placeholder="Password" />
+                <button>Sign In</button>
+            </form>
+        </div>
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Already have an account? Sign in here</p>
+                    <button class="ghost" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Don't have an account? Sign up here</p>
+                    <button class="ghost" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+        const signupForm = document.getElementById('signup-form');
+        const signupMessage = document.getElementById('signup-message');
+
+        signUpButton.addEventListener('click', () => {
+            container.classList.add('right-panel-active');
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove('right-panel-active');
+        });
+
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data); // Debugging: Log server response
+                    if (data.message === 'User  registered successfully') { // Match exact message
+                        Swal.fire({
+                            title: 'Signup Successful!',
+                            text: 'Your account has been created successfully. Redirecting...',
+                            icon: 'success',
+                            confirmButtonText: 'Cool!',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            willClose: () => {
+                                container.classList.remove('right-panel-active');
+                            },
+                            showClass: {
+                                popup: 'animate__animated animate__fadeInDown',
+                            },
+                            hideClass: {
+                                popup: 'animate__animated animate__fadeOutUp',
+                            },
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Signup Failed!',
+                            text: data.message || 'There was an error signing you up. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'Try Again',
+                            showClass: {
+                                popup: 'animate__animated animate__shakeX',
+                            },
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Something went wrong! Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        showClass: {
+                            popup: 'animate__animated animate__fadeIn',
+                        },
+                        hideClass: {
+                            popup: 'animate__animated animate__fadeOut',
+                        },
+                    });
+                });
+        });
+
+
+    </script>
+</body>
+
+</html>
